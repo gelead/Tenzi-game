@@ -1,21 +1,45 @@
 import React, { useState } from "react";
 import Die from "./Die";
 import { nanoid } from "nanoid";
+
 const Tenzi = () => {
   const getAllNewDices = () => {
     const diceArray = [];
     for (let i = 1; i <= 10; i++) {
-      diceArray.push({ value: Math.ceil(Math.random() * 6), isHeld: false, id: nanoid() });
+      diceArray.push({
+        value: Math.ceil(Math.random() * 6),
+        isHeld: false,
+        id: nanoid(),
+      });
     }
     return diceArray;
   };
+  const [dice, setDice] = useState(getAllNewDices());
+
+  const hold = (id) => {
+    const newDice = dice.map((die) =>
+      die.id == id ? { ...die, isHeld: !die.isHeld } : die
+    );
+
+    setDice(newDice);
+  };
 
   const handleRollDice = () => {
-    setDiceArray(getAllNewDices());
+    setDice((oldDice) =>
+      oldDice.map((die) =>
+        die.isHeld ? die : { ...die, value: Math.ceil(Math.random() * 6) }
+      )
+    );
   };
-  const [diceArray, setDiceArray] = useState(getAllNewDices());
-  const diceElement = diceArray.map(dice => (
-    <Die key={dice.id} value={dice.value} isHeld={dice.isHeld} />
+
+  const diceElement = dice.map((dice) => (
+    <Die
+      key={dice.id}
+      value={dice.value}
+      id={dice.id}
+      hold={hold}
+      isHeld={dice.isHeld}
+    />
   ));
   return (
     <main className="border text-center p-6 w-lg h-105 bg-white rounded-xl">
