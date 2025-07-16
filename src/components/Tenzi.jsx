@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Die from "./Die";
 import { nanoid } from "nanoid";
+import Confetti from "react-confetti";
 
 const Tenzi = () => {
   const getAllNewDices = () => {
@@ -14,7 +15,11 @@ const Tenzi = () => {
     }
     return diceArray;
   };
-  const [dice, setDice] = useState(getAllNewDices());
+  const [dice, setDice] = useState(() => getAllNewDices());
+
+  const gameWon =
+    dice.every((die) => die.isHeld) &&
+    dice.every((die) => die.value === dice[0].value);
 
   const hold = (id) => {
     const newDice = dice.map((die) =>
@@ -25,11 +30,15 @@ const Tenzi = () => {
   };
 
   const handleRollDice = () => {
-    setDice((oldDice) =>
-      oldDice.map((die) =>
-        die.isHeld ? die : { ...die, value: Math.ceil(Math.random() * 6) }
-      )
-    );
+    if (!gameWon) {
+      setDice((oldDice) =>
+        oldDice.map((die) =>
+          die.isHeld ? die : { ...die, value: Math.ceil(Math.random() * 6) }
+        )
+      );
+    }else{
+      setDice(getAllNewDices())
+    }
   };
 
   const diceElement = dice.map((dice) => (
@@ -43,6 +52,7 @@ const Tenzi = () => {
   ));
   return (
     <main className="border text-center p-6 w-lg h-105 bg-white rounded-xl">
+      {gameWon && <Confetti />}
       <h1 className="font-bold text-2xl">Tenzi</h1>
       <p className="my-4">
         Roll until all dice are the same. Click each die to freeze it at its
@@ -54,9 +64,9 @@ const Tenzi = () => {
       <button
         onClick={handleRollDice}
         id="roll"
-        className="bg-purple-800 text-lg cursor-pointer text-white px-4 py-2 rounded-md shadow-lg w-20"
+        className="bg-purple-800 text-lg cursor-pointer text-white px-4 py-2 rounded-md shadow-lg"
       >
-        Roll
+        {gameWon ? "New Game" : "Roll"}
       </button>
     </main>
   );
